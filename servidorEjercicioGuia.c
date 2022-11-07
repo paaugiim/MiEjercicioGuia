@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 9050
-	serv_adr.sin_port = htons(9050);
+	serv_adr.sin_port = htons(9000);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	//La cola de peticiones pendientes no podr? ser superior a 4
@@ -54,20 +54,27 @@ int main(int argc, char *argv[])
 		char nombre[20];
 		strcpy (nombre, p);
 		printf ("Codigo: %d, Nombre: %s\n", codigo, nombre);
-		
 		if (codigo ==1) //piden la longitd del nombre
 			sprintf (respuesta,"%d",strlen (nombre));
-		else
+		else if (codigo==2)
 			// quieren saber si el nombre es bonito
 			if((nombre[0]=='M') || (nombre[0]=='S'))
-			strcpy (respuesta,"SI");
+				strcpy (respuesta,"SI");
 			else
 				strcpy (respuesta,"NO");
+		else
+			{
+				p = strtok(NULL, "/");
+				float altura = atof (p);
+				if (altura > 1.70)
+					sprintf(respuesta, "%s: Eres alto", nombre);
+				else
+					sprintf(respuesta, "%s: Eres bajo", nombre);
+			}
+		// Enviamos la respuesta
+		write (sock_conn,respuesta, strlen(respuesta));
 			
-			// Enviamos la respuesta
-			write (sock_conn,respuesta, strlen(respuesta));
-			
-			// Se acabo el servicio para este cliente
-			close(sock_conn); 
+		// Se acabo el servicio para este cliente
+		close(sock_conn); 
 	}
 }
