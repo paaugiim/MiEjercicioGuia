@@ -6,6 +6,11 @@
 #include <netinet/in.h>
 #include <stdio.h>
 #include <pthread.h>
+
+int contador;
+
+//Estructura nexesaria para acceso excluyente
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 void *AtenderCliente (void *socket)
 {
 	int sock_conn;
@@ -33,15 +38,17 @@ void *AtenderCliente (void *socket)
 		char *p = strtok(peticion, "/");
 		int codigo =  atoi (p);
 		char nombre[20];
-		if (codigo!=0)
+		if ((codigo!=0)&&(codigo!=4))
 		{
 			p = strtok( NULL, "/");
 			strcpy (nombre, p);
 			printf ("Codigo: %d, Nombre: %s\n", codigo, nombre);
 		}
-
+		
 		if (codigo==0)
 			terminar = 1;
+		else if (codigo == 4)
+			sprintf(respuesta, "%d",contador);
 		else if (codigo ==1) //piden la longitd del nombre
 			sprintf (respuesta,"%d",strlen (nombre));
 		else if (codigo==2)
@@ -50,7 +57,7 @@ void *AtenderCliente (void *socket)
 			strcpy (respuesta,"SI");
 			else
 				strcpy (respuesta,"NO");
-		else
+			else
 			{
 				p = strtok(NULL, "/");
 				float altura = atof (p);
@@ -60,9 +67,16 @@ void *AtenderCliente (void *socket)
 					sprintf(respuesta, "%s: Eres bajo", nombre);
 			}
 			
-		if (codigo!=0)	
-			// Enviamos la respuesta
-			write (sock_conn,respuesta, strlen(respuesta));
+			if (codigo!=0)	
+				// Enviamos la respuesta
+				write (sock_conn,respuesta, strlen(respuesta));
+		
+			if ((codigo==1) || (codigo==2)||(codigo==3))
+			{
+				pthread_mutex_lock(&mutex); // No me interrumpas ahora
+				contador = contador+1;
+				pthread_mutex_unlock(&mutex); //Ya puedes interrumpirme
+			} n
 	}	
 	// Se acabo el servicio para este cliente
 	close(sock_conn); 
@@ -72,7 +86,7 @@ int main(int argc, char *argv[])
 {
 	int sock_conn, sock_listen, ret;
 	struct sockaddr_in serv_adr;
-
+	
 	// INICIALITZACIONS
 	// Obrim el socket
 	if ((sock_listen = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -84,12 +98,13 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// escucharemos en el port 9050
-	serv_adr.sin_port = htons(9020);
+	serv_adr.sin_port = htons(9000);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	//La cola de peticiones pendientes no podr? ser superior a 4
 	if (listen(sock_listen, 4) < 0)
 		printf("Error en el Listen");
+	int contador = 0;
 	int i;
 	//Hacemos vector de sockets para atender mￃﾡs de 1 cliente a la vez
 	int sockets[100];
@@ -105,7 +120,7 @@ int main(int argc, char *argv[])
 		// Crear thred y decirle que tiene que hacer:
 		pthread_create (&thread, NULL, AtenderCliente,&sockets[i]);	//No podem fer que els vectors siguin infinits i arriba un moment que no podem colﾷlocar els sockets a la posicio que tocaria
 		i = i+1;
-		}
-/*	for(i=0;i<5;i++)*/
-/*		pthread_join(thread[i],NULL);*/	// Nomes seria si tinguessim un buvle limitat
+	}
+	/*	for(i=0;i<5;i++)*/
+	/*		pthread_join(thread[i],NULL);*/	// Nomes seria si tinguessim un buvle limitat
 }
