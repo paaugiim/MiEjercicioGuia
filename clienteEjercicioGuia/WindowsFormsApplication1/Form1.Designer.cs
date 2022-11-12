@@ -39,7 +39,6 @@
             this.Bonito = new System.Windows.Forms.RadioButton();
             this.conectar = new System.Windows.Forms.Button();
             this.desconectar = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.contLbl = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -171,17 +170,6 @@
             this.desconectar.UseVisualStyleBackColor = true;
             this.desconectar.Click += new System.EventHandler(this.desconectar_Click);
             // 
-            // button1
-            // 
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.125F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(917, 219);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(251, 189);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "¿Cuantos servicios?";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // contLbl
             // 
             this.contLbl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -197,7 +185,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1265, 1158);
             this.Controls.Add(this.contLbl);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.desconectar);
             this.Controls.Add(this.conectar);
             this.Controls.Add(this.groupBox1);
@@ -224,7 +211,6 @@
         private System.Windows.Forms.RadioButton Altura;
         private System.Windows.Forms.Button conectar;
         private System.Windows.Forms.Button desconectar;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label contLbl;
     }
 }
